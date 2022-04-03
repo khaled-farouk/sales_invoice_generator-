@@ -2,14 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Actions;
+package Controller;
 
 //import Model.InvoiceLine;
-import udacity.MyFrame;
+import View.InvoiceGeneratorUI;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,109 +27,112 @@ import javax.swing.table.DefaultTableModel;
  */
 public class MyActions extends Component {
 
-    MyFrame frame;
+    InvoiceGeneratorUI frame;
     String first_path = "../InvoiceHeader.csv";
     String second_path = "../InvoiceLine.csv";
     static int NoNum;
-    DefaultTableModel model;
-//    DefaultTableModel IHmodel = (DefaultTableModel) frame.getInvoicesTable().getModel();
-//    DefaultTableModel ILmodel = (DefaultTableModel) frame.getInvoiceItemsTable().getModel();
-//
+    DefaultTableModel header_Model;
+    DefaultTableModel line_Model;
 
-    public MyActions(MyFrame frame) {
+    public MyActions(InvoiceGeneratorUI frame) {
         this.frame = frame;
     }
 
-    public void loadFile(ActionEvent evt) {
-        JOptionPane.showMessageDialog(this, "Please, select header file!", "Attension", JOptionPane.WARNING_MESSAGE);
+    public void loadFile(java.awt.event.ActionEvent evt) {
+
         // if you want to choose the 2 files
         //two path fields will be changed as you selected
         BufferedReader br = null;
+        BufferedReader br2 = null;
+        int total = 0;
+        int invNum = 1;
+        header_Model = (DefaultTableModel) frame.getInvoicesTable().getModel();
         JFileChooser fc = new JFileChooser();
-        int result = fc.showOpenDialog(this);
+        int result = fc.showOpenDialog(frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             first_path = fc.getSelectedFile().getPath();
 
             try {
                 br = new BufferedReader(new FileReader(new File(first_path)));
-                model = (DefaultTableModel) frame.getInvoicesTable().getModel();
                 Object[] tableLines = br.lines().toArray();
                 for (int i = 0; i < tableLines.length; i++) {
                     String line = tableLines[i].toString().trim();
                     String[] dataRow = line.split(",");
-                    model.addRow(dataRow);
+                    header_Model.addRow(dataRow);
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                //add invoice lines
+                JFileChooser fc2 = new JFileChooser();
+                int result2 = fc2.showOpenDialog(frame);
+                if (result2 == JFileChooser.APPROVE_OPTION) {
+                    second_path = fc2.getSelectedFile().getPath();
+
+                    br2 = new BufferedReader(new FileReader(new File(second_path)));
+                    line_Model = (DefaultTableModel) frame.getInvoiceItemsTable().getModel();
+                    Object[] tableLines2 = br2.lines().toArray();
+                    int[] n = new int[tableLines2.length];//  n=itemCount*itemPrice
+                    int num;
+                    int j = 0;
+                    for (int i = 0; i < tableLines2.length; i++) {
+                        String line = tableLines2[i].toString().trim();
+                        String[] dataRow = line.split(",");
+                        line_Model.addRow(dataRow);
+                        n[i] = Integer.parseInt(line_Model.getValueAt(i, 2).toString()) * Integer.parseInt(line_Model.getValueAt(i, 3).toString());
+
+
+                        String invNumStr = dataRow[0];
+                        num = n[i];
+
+                        //add Tolal to header
+                        if (Integer.parseInt(invNumStr) == invNum) {
+                            total += num;
+
+                        } else {
+                            header_Model.setValueAt(String.valueOf(total), j, 3);
+                            invNum++;
+                            j++;
+                            total = 0;
+                            total += num;
+                        }
+                        //end of adding Tolal to header
+
+                        line_Model.setValueAt(String.valueOf(num), i, 4);
+                    }
+                    header_Model.setValueAt(String.valueOf(total), j, 3);//last total inv
+                    //
+                    NoNum = line_Model.getRowCount();
+                    //
+                }
+            } catch (Exception ex) {
+                Logger.getLogger(InvoiceGeneratorUI.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 try {
                     br.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        //line..line
-        BufferedReader br2 = null;
-        JFileChooser fc2 = new JFileChooser();
-        int result2 = fc2.showOpenDialog(frame);
-        if (result2 == JFileChooser.APPROVE_OPTION) {
-            second_path = fc2.getSelectedFile().getPath();
-
-            try {
-                br2 = new BufferedReader(new FileReader(new File(second_path)));
-                model = (DefaultTableModel) frame.getInvoiceItemsTable().getModel();
-                Object[] tableLines = br2.lines().toArray();
-                //String s= model.getColumnName(4);
-                int[] n = new int[tableLines.length];//  n=itemCount*itemPrice
-                int num;
-                for (int i = 0; i < tableLines.length; i++) {
-                    String line = tableLines[i].toString().trim();
-                    String[] dataRow = line.split(",");
-                    model.addRow(dataRow);
-                    n[i] = Integer.parseInt(model.getValueAt(i, 2).toString()) * Integer.parseInt(model.getValueAt(i, 3).toString());
-
-                    //System.out.println(n[i]);
-                    num = n[i];
-                    model.setValueAt(String.valueOf(num), i, 4);
-                }
-                //
-                NoNum = model.getRowCount();
-
-
-
-
-            } catch (IOException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                try {
                     br2.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(InvoiceGeneratorUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
-
     }
 
-    public void createBtnActionPerformed(ActionEvent evt) {
+    public void createBtnActionPerformed(java.awt.event.ActionEvent evt) {
         // create new invoice row as you typed in invoice data
-        model = (DefaultTableModel) frame.getInvoicesTable().getModel();
-        model.addRow(new Object[]{
+        header_Model = (DefaultTableModel) frame.getInvoicesTable().getModel();
+        header_Model.addRow(new Object[]{
                 frame.getNumTextField().getText(),
                 frame.getDateTextField().getText(),
                 frame.getNameTextField().getText(),
                 frame.getTotalTextField().getText()
         });
-        NoNum = model.getRowCount();
+        NoNum = header_Model.getRowCount();
         NoNum++; //to increase invoice number
         frame.getNumTextField().setText(String.valueOf(NoNum));
     }
 
-    public void saveBtnActionPerformed(ActionEvent evt) {
+    public void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {
         // save invoice items table in the specified csv file
         if (frame.getInvoiceItemsTable().getRowCount() == 0) {
-            JOptionPane.showMessageDialog(null, "Empty Table, please load a txt file");
+            JOptionPane.showMessageDialog(null, "Empty!!, please load a .txt file");
         } else {
 
             BufferedWriter bw2 = null;
@@ -153,21 +155,23 @@ public class MyActions extends Component {
                 JOptionPane.showMessageDialog(null, "Saved successfully");
 
             } catch (IOException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(InvoiceGeneratorUI.class.getName()).log(Level.SEVERE, null, ex);
             }
             try {
                 bw2.close();
             } catch (IOException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(InvoiceGeneratorUI.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
     }
 
-    public void saveFileTabActionPerformed(ActionEvent evt) {
+    public void saveFileTabActionPerformed(java.awt.event.ActionEvent evt) {
         // save 2 csv files
 
         BufferedWriter bw = null;
+        BufferedWriter bw2 = null;
+
         try {
             File file = new File(first_path);
             bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
@@ -182,20 +186,6 @@ public class MyActions extends Component {
                 }
                 bw.write("\n");
             }
-
-        } catch (IOException ex) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                bw.close();
-            } catch (IOException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        }
-
-        BufferedWriter bw2 = null;
-        try {
             File file2 = new File(second_path);
             bw2 = new BufferedWriter(new FileWriter(file2.getAbsoluteFile()));
             for (int i = 0; i < frame.getInvoiceItemsTable().getRowCount(); i++) {
@@ -211,22 +201,24 @@ public class MyActions extends Component {
             }
 
         } catch (IOException ex) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(InvoiceGeneratorUI.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
+                bw.close();
                 bw2.close();
             } catch (IOException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(InvoiceGeneratorUI.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
+        JOptionPane.showMessageDialog(null, "Two files saved sucessfully");
 
     }
 
     public void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {
-        model = (DefaultTableModel) frame.getInvoicesTable().getModel();
+        header_Model = (DefaultTableModel) frame.getInvoicesTable().getModel();
         if (frame.getInvoicesTable().getSelectedRowCount() == 1) { //if you already select a row
-            model.removeRow(frame.getInvoicesTable().getSelectedRow());            // remove selected row from the model
+            header_Model.removeRow(frame.getInvoicesTable().getSelectedRow());            // remove selected row from the model
             JOptionPane.showMessageDialog(null, "Selected row deleted successfully");
         } else {
             if (frame.getInvoicesTable().getRowCount() == 0) {
@@ -238,14 +230,13 @@ public class MyActions extends Component {
         }
     }
 
-    public void cancelBtnActionPerformed(ActionEvent evt) {
-        // undo changes , read the file again
-        model = (DefaultTableModel) frame.getInvoiceItemsTable().getModel();
+    public void cancelBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        line_Model = (DefaultTableModel) frame.getInvoiceItemsTable().getModel();
 
         if (frame.getInvoiceItemsTable().getRowCount() == 0) {
             JOptionPane.showMessageDialog(null, "Empty Table, please load a txt file");
         } else {
-            model.setNumRows(0);
+            line_Model.setNumRows(0);
             BufferedReader br2 = null;
             try {
                 File file2 = new File(second_path);
@@ -254,15 +245,15 @@ public class MyActions extends Component {
                 for (int i = 0; i < tableLines.length; i++) {
                     String line = tableLines[i].toString().trim();
                     String[] dataRow = line.split(",");
-                    model.addRow(dataRow);
+                    line_Model.addRow(dataRow);
                 }
             } catch (IOException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(InvoiceGeneratorUI.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 try {
                     br2.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(InvoiceGeneratorUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
