@@ -1,7 +1,7 @@
 package Application;
 
 
-import Controller.Controller;
+import Controller.Cntrol;
 import java.util.ArrayList;
 
 import model.InvoiceHeader;
@@ -20,6 +20,6 @@ public class Main
         view.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
         view.setVisible(true);
         view.setLocations();
-        Controller c= new Controller(invoices, view);
+        Cntrol c= new Cntrol(invoices, view);
     }
 }
