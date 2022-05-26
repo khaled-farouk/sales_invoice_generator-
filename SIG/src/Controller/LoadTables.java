@@ -19,7 +19,7 @@ public class LoadTables
 {
     public static void loadInvoicesHeaderTable(View view, ArrayList<InvoiceHeader> invoices) 
     {
-       TableContent.cleanInvoicesHeaderTable(view);
+       TableData.DeleteInvoicesHeader(view);
        Object data[]=new Object[4];
        for(int i=0;i<invoices.size();i++)
        {
@@ -39,18 +39,18 @@ public class LoadTables
         if(selectedRow==-1)
         {
             //clear all fields and disable all buttons of right side in GUI
-            RightSide.rightSideDisable(view);
-            TableContent.cleanInvoicesLineTable(view);
+            RightPanell.rightOFF(view);
+            TableData.DeleteLineTable(view);
             //disable delete invoice button on left side if there's no row selected
             view.getDeleteInvoiceButton().setEnabled(false);
         }
         else
         {
             //enable all buttons of the right side in GUI
-            RightSide.rightSideEnable(view);
+            RightPanell.rightON(view);
             //enable delete invoice button on left side if there's row selected
             view.getDeleteInvoiceButton().setEnabled(true);
-            TableContent.cleanInvoicesLineTable(view);
+            TableData.DeleteLineTable(view);
             InvoicesLineTab.setInvoicesLineTableModel(view).setRowCount(0);
             for(int j=0;j<invoices.get(selectedRow).getInvoicerow().size();j++)
             {
@@ -63,7 +63,7 @@ public class LoadTables
                 data[3]=invoices.get(selectedRow).getInvoicerow().get(j).getItemCount();
                 data[4]=invoices.get(selectedRow).getInvoicerow().get(j).getItemTotal();
                 InvoicesLineTab.setInvoicesLineTableModel(view).addRow(data);
-                RightSide.rightSideTextUpdater(view,invoices,selectedRow);
+                RightPanell.rightSideTextUpdat(view,invoices,selectedRow);
             }
         }
     }
