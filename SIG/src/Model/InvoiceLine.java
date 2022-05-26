@@ -1,78 +1,70 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Model;
+package model;
+
+import model.InvoiceHeader;
 
 /**
  *
  * @author khaled
  */
-public class InvoiceLine {
-    private int numOfItems;
-    private String product;
-    private double price;
-    private int count;
-    private double lineTotal;
-    private InvoiceHeader invoice;
-//    ArrayList<InvoiceHeader>arrInvHeader;
-
-    public InvoiceLine(String product, double price, int count,InvoiceHeader invoice) {
-//        this.numOfItems = numOfItem;
-        this.product = product;
-        this.price = price;
-        this.count = count;
-        this.invoice = invoice;
-        this.setLineTotal(this.count * this.price);
+public class InvoiceLine 
+{
+    String itemName;
+    float  itemPrice;
+    int    itemCount;
+    float  itemTotal;
+    InvoiceHeader mainInvoice; //aggregation
+    public InvoiceLine(String itemName, float itemPrice, int itemCount, InvoiceHeader mainInvoice) {
+        this.itemName = itemName;
+        this.itemPrice = itemPrice;
+        this.itemCount = itemCount;
+        this.mainInvoice = mainInvoice;
     }
 
-    public InvoiceHeader getInvoice() {
-        return invoice;
+    public InvoiceLine() {
     }
 
-    public void setInvoice(InvoiceHeader invoice) {
-        this.invoice = invoice;
+    public String getItemName() {
+        return itemName;
     }
 
-    public String getProduct() {
-        return product;
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
     }
 
-    public void setProduct(String product) {
-        this.product = product;
+    public float getItemPrice() {
+        return itemPrice;
     }
 
-    public double getPrice() {
-        return price;
+    public void setItemPrice(float itemPrice) {
+        this.itemPrice = itemPrice;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public int getItemCount() {
+        return itemCount;
     }
 
-    public int getNumOfItems() {
-        return numOfItems;
+    public void setItemCount(int itemCount) {
+        this.itemCount = itemCount;
     }
 
-    public void setNumOfItems(int numOfItems) {
-        this.numOfItems = numOfItems;
+    public float getItemTotal() {
+        return itemTotal;
     }
 
-    public int getCount() {
-        return count;
+    public void setItemTotal(float itemTotal) {
+        this.itemTotal = itemTotal;
     }
 
-    public void setCount(int count) {
-        this.count = count;
+    public InvoiceHeader getMainInvoice() {
+        return mainInvoice;
     }
 
-    public double getLineTotal() {
-        return lineTotal;
+    public void setMainInvoice(InvoiceHeader mainInvoice) {
+        this.mainInvoice = mainInvoice;
     }
-
-    public void setLineTotal(double lineTotal) {
-        this.lineTotal = lineTotal;
-    }
-
+    
 }

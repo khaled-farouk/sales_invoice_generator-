@@ -1,9 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Model;
+package model;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,67 +11,62 @@ import java.util.Date;
  *
  * @author khaled
  */
-public class InvoiceHeader {
-    private int num;
-    private Date date;
-    private String customerName;
-    private double invHeaderTotal;
-    private ArrayList<InvoiceLine> lines;
+public class InvoiceHeader 
+{
+    private int invoiceNumber;
+    private Date invoiceDate;
+    private String invoiceCustomerName;
+    private float inoviceTotal;
+    private ArrayList<InvoiceLine> invoicerow; //composition 
 
-    public InvoiceHeader(int num, Date date, String customerName) {
-        this.num = num;
-        this.date = date;
-        this.customerName = customerName;
+    public InvoiceHeader() {
     }
 
-    public int getNum() {
-        return num;
+    public ArrayList<InvoiceLine> getInvoicerow() {
+        if(invoicerow == null)
+            invoicerow = new ArrayList<>();
+        return invoicerow;
     }
 
-    public Date getDate() {
-        return date;
+    public void setInvoicerow(ArrayList<InvoiceLine> invoicerow) {
+        this.invoicerow = invoicerow;
+    }
+    public InvoiceHeader(int inoviceNumber, Date inoviceDate, String inoviceCustomerName) {
+        this.invoiceNumber = inoviceNumber;
+        this.invoiceDate = inoviceDate;
+        this.invoiceCustomerName = inoviceCustomerName;
     }
 
-    public String getCustomerName() {
-        return customerName;
+    public int getInoviceNumber() {
+        return invoiceNumber;
     }
 
-    public double getInvHeaderTotal() {
-               return invHeaderTotal;
+    public void setInoviceNumber(int inoviceNumber) {
+        this.invoiceNumber = inoviceNumber;
     }
 
-    public void setNum(int num) {
-        this.num = num;
+    public Date getInoviceDate() {
+        return invoiceDate;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setInoviceDate(Date inoviceDate) {
+        this.invoiceDate = inoviceDate;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public String getInoviceCustomerName() {
+        return invoiceCustomerName;
     }
 
-    public void setInvHeaderTotal(double invHeaderTotal) {
-        this.invHeaderTotal = invHeaderTotal;
+    public void setInoviceCustomerName(String inoviceCustomerName) {
+        this.invoiceCustomerName = inoviceCustomerName;
     }
 
-    public ArrayList<InvoiceLine> getLines() {
-        if (lines == null){
-            lines = new ArrayList<>();
-        }
-        return lines;
+    public float getInoviceTotal() {
+        return inoviceTotal;
     }
 
-//    public void setLines(ArrayList<InvoiceLine> lines) {
-//
-//        this.lines = lines;
-//    }
-
- public void addLine(InvoiceLine line){
-        getLines().add(line);
-        setInvHeaderTotal(getInvHeaderTotal() + line.getLineTotal() );
- }
-
-
+    public void setInoviceTotal(float inoviceTotal) {
+        this.inoviceTotal = inoviceTotal;
+    }
+    
 }
