@@ -1,6 +1,6 @@
 package model;
 
-import Controller.Controller;
+import Controller.Cntrol;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,8 +18,8 @@ import View.View;
 public class FileOp
 {
     /*Used To Store Files Paths*/
-    public static File selectedInvoiceHeader=null;
-    public static File selectedInvoiceLine=null;
+    public static File selectINvOHeader =null;
+    public static File selectInVoLine =null;
     //Date format
     public static SimpleDateFormat date=new SimpleDateFormat("dd-MM-yyyy");
     private  View view=null;
@@ -27,15 +27,15 @@ public class FileOp
     {
         this.view=view;
     }
-    public void getFilesPaths()
+    public void FilePaths()
     {
         /*Reset Files Paths*/
-        selectedInvoiceHeader=null;
-        selectedInvoiceLine=null;
+        selectINvOHeader =null;
+        selectInVoLine =null;
         //Flag to check extension of selected file
-        boolean extensionFlag = false;
+        boolean extFlg = false;
         //Flag to check if "Cancel" button clicked
-        boolean cancelButton = false;
+        boolean cancelBtn = false;
         //To chekc which button user clicked on Jfile chooser
         int clicked;
         //String to store selected file name to check it's extension 
@@ -62,8 +62,8 @@ public class FileOp
             clicked= view.getOpenFileJFileChooser().showOpenDialog(view);
             if(clicked == view.getOpenFileJFileChooser().APPROVE_OPTION) 
             {
-                Controller.invoices.clear();
-                cancelButton=false;
+                Cntrol.invoices.clear();
+                cancelBtn =false;
                 //Fetch file name
                 fileName= view.getOpenFileJFileChooser().getSelectedFile().getName();
                 //Fetch file extension
@@ -71,31 +71,31 @@ public class FileOp
                 //Validate file extension
                 if(fileExtension.equalsIgnoreCase("csv"))
                 {
-                    extensionFlag=false; //correct file extension
-                    selectedInvoiceHeader=view.getOpenFileJFileChooser().getSelectedFile();
+                    extFlg =false; //correct file extension
+                    selectINvOHeader =view.getOpenFileJFileChooser().getSelectedFile();
                 }
                 else
                 {
-                    extensionFlag=true; //wrong file extension
+                    extFlg =true; //wrong file extension
                     view.setJOptionPaneMessagMessage(view,"Error: Load File With Extension .CSV Only","Wrong File Selected","ERROR_MESSAGE");
                 }
             }
             else
             {
-                cancelButton=true;
+                cancelBtn =true;
             }
         }
-        while((extensionFlag == true)&& (cancelButton==false));
+        while((extFlg == true)&& (cancelBtn ==false));
         
         /*************************************************Load Invoice Line File*************************************************/
         //Reset extension flag
-        extensionFlag=true;
-        if(selectedInvoiceHeader!=null)
+        extFlg =true;
+        if(selectINvOHeader !=null)
         {
             //Tell user to select "Invoice Line" file second
             view.setJOptionPaneMessagMessage(view,"please select Invoice Line File","Invoice Line Selection","WARNING_MESSAGE");
         }
-        while ((extensionFlag == true)&& (cancelButton==false))
+        while ((extFlg == true)&& (cancelBtn ==false))
         {
             //Reset file name
             view.getOpenFileJFileChooser().setSelectedFile(new File(""));
@@ -108,7 +108,7 @@ public class FileOp
             clicked= view.getOpenFileJFileChooser().showOpenDialog(view);
             if(clicked == view.getOpenFileJFileChooser().APPROVE_OPTION) 
             {
-                cancelButton=false;
+                cancelBtn =false;
                 //Fetch file name
                 fileName= view.getOpenFileJFileChooser().getSelectedFile().getName();
                 //Fetch file extension
@@ -116,18 +116,18 @@ public class FileOp
                 //Validate file extension
                 if(fileExtension.equalsIgnoreCase("csv"))
                 {
-                    extensionFlag=false; //correct file extension
-                    selectedInvoiceLine=view.getOpenFileJFileChooser().getSelectedFile();
+                    extFlg =false; //correct file extension
+                    selectInVoLine =view.getOpenFileJFileChooser().getSelectedFile();
                 }
                 else
                 {
-                    extensionFlag=true; //wrong file extension
+                    extFlg =true; //wrong file extension
                     view.setJOptionPaneMessagMessage(view,"File Extension Error ","Wrong File Selected","ERROR_MESSAGE");
                 }
             }
             else
             {
-                cancelButton=true;
+                cancelBtn =true;
             }
         }
         
@@ -167,14 +167,14 @@ public class FileOp
         //InvoiceHeader temporary Object to store parent header of each invoice line
         InvoiceHeader temporary=null;
         //Array list to store invoice header lines
-        ArrayList <InvoiceHeader> invoices= Controller.invoices;
+        ArrayList <InvoiceHeader> invoices= Cntrol.invoices;
        /*Start Reading Invoice Header File*/
         try
         {
-        if((selectedInvoiceHeader!=null)&&(selectedInvoiceLine!=null))
+        if((selectINvOHeader !=null)&&(selectInVoLine !=null))
         {
             invoices= new ArrayList<InvoiceHeader>();
-            FileReader file= new FileReader(selectedInvoiceHeader);
+            FileReader file= new FileReader(selectINvOHeader);
                 BufferedReader B = new BufferedReader(file);
                 while((Line = B.readLine())!= null)
                 {
@@ -202,8 +202,8 @@ public class FileOp
         }
         catch(Exception e)
         {
-            selectedInvoiceHeader=null;
-            selectedInvoiceLine=null;
+            selectINvOHeader =null;
+            selectInVoLine =null;
             invoices.clear();
             view.getCreatNewInvoiceButton().setEnabled(false);
             if(e.toString().contains("Wrong File Internal Format"))
@@ -218,9 +218,9 @@ public class FileOp
         /*Start Reading Invoice Line File*/
         try
         {
-        if((selectedInvoiceHeader!=null)&&(selectedInvoiceLine!=null))
+        if((selectINvOHeader !=null)&&(selectInVoLine !=null))
         {
-            FileReader file= new FileReader(selectedInvoiceLine);
+            FileReader file= new FileReader(selectInVoLine);
                 BufferedReader B = new BufferedReader(file);
                 while((Line = B.readLine())!= null)
                 {
@@ -252,8 +252,8 @@ public class FileOp
         }
         catch(Exception e)
         {
-            selectedInvoiceHeader=null;
-            selectedInvoiceLine=null;
+            selectINvOHeader =null;
+            selectInVoLine =null;
             invoices.clear();
             view.getCreatNewInvoiceButton().setEnabled(false);
             view.setJOptionPaneMessagMessage(view, "Wrong File Internal Format", "Error", "ERROR_MESSAGE");
@@ -262,7 +262,7 @@ public class FileOp
     }
     public void writeFile(ArrayList<InvoiceHeader> invoices)
     {
-        Controller.isThereIsNotSavedEdit=false;
+        Cntrol.isThereIsnotSvdEd =false;
         /*########################### Save Invoices Header File ###########################*/
         int InvoiceLinelines=0;
         int totalInvoiceLinelines=0;
@@ -270,7 +270,7 @@ public class FileOp
         FileWriter fileWriter=null;
         try
         {
-            fileWriter= new FileWriter(selectedInvoiceHeader);
+            fileWriter= new FileWriter(selectINvOHeader);
         }catch(Exception e)
         {}
         for(int i=0;i<invoices.size();i++)
@@ -292,7 +292,7 @@ public class FileOp
         /*########################### Save Invoices Lines File ###########################*/
         try
         {
-            fileWriter= new FileWriter(selectedInvoiceLine);
+            fileWriter= new FileWriter(selectInVoLine);
         }catch(Exception e)
         {}
         for(int i=0;i<invoices.size();i++)
@@ -332,7 +332,7 @@ public class FileOp
     }
     public void testMain(ArrayList<InvoiceHeader> invoices)
     {
-        if((selectedInvoiceHeader!=null)&&(selectedInvoiceLine!=null))
+        if((selectINvOHeader !=null)&&(selectInVoLine !=null))
         {
             for(int i=0;i<invoices.size();i++)
             {
@@ -365,9 +365,9 @@ public class FileOp
     {
         for(int i=0;i<invoices.size();i++)
         {
-            if((invoices.get(i).getInoviceNumber())>Controller.maxNumberOfExistedInvoices)
+            if((invoices.get(i).getInoviceNumber())> Cntrol.maxNumInvoices)
             {
-                Controller.maxNumberOfExistedInvoices=invoices.get(i).getInoviceNumber();
+                Cntrol.maxNumInvoices =invoices.get(i).getInoviceNumber();
             }
         }
     }
