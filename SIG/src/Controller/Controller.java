@@ -1,253 +1,262 @@
 package Controller;
 
-import View.InvoiceGeneratorUI;
-import View.HeaderDialog;
-import View.LineDialog;
-import Model.HeaderTable;
-import Model.InvoiceHeader;
-import Model.InvoiceLine;
-import Model.LineTable;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import listeners.InvoicesLine;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Date;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import listeners.*;
+import model.FileOp;
+import model.InvoiceHeader;
+import View.View;
 
-public class Controller extends JFrame {
-
-    public Controller(InvoiceGeneratorUI frame) throws HeadlessException {
-        this.frame = frame;
+/**
+ *
+ * @author khaled
+ */
+public class Controller implements ActionListener, KeyListener
+{
+    private  View          view;
+    private FileOp fileOperations;
+    private LoadTables loadTablesContents;
+    private TableContent cleanTablesContent;
+    public volatile static ArrayList <InvoiceHeader> invoices= new ArrayList<>();
+    public volatile static int selectedRow=0;
+    public volatile static boolean isThereIsNotSavedEdit = false;
+    public volatile static int maxNumberOfExistedInvoices=0;
+    /*Listeners Objects*/
+    private InvoiceTable invoiceTableListener;
+    private InvoicesLine invoicesLineTableListener;
+    private FileMenitem fileMenuItemsListener;
+    private MainFrameWin mainFrameWindowListener;
+    private MainFrameMotion mainFrameMouseMotionListener;
+    private AddDialListener addItemDialogWindowListener;
+    private InvoiceDate invoiceDateTextFieldListener;
+    private CustomerName customerNameTextFieldListener;
+    public Controller (ArrayList<InvoiceHeader> invoices, View view) 
+    {
+        this.invoices=invoices;
+        this.view = view;
+        fileOperations= new FileOp(this.view);
+        /*Listeners Initiation*/
+        invoicesLineTableListener=new InvoicesLine(view);
+        invoiceTableListener=new InvoiceTable(view,fileOperations,invoicesLineTableListener);
+        fileMenuItemsListener=new FileMenitem(view,fileOperations,invoiceTableListener);
+        mainFrameWindowListener=new MainFrameWin(view,fileOperations,invoiceTableListener);
+        addItemDialogWindowListener=new AddDialListener(view);
+        mainFrameMouseMotionListener=new MainFrameMotion(view);
+        invoiceDateTextFieldListener=new InvoiceDate(view);
+        customerNameTextFieldListener=new CustomerName(view);
+        turnOnAllActionListerners(view);
+        loadTablesContents= new LoadTables();
+        cleanTablesContent= new TableContent();
     }
-
-    InvoiceGeneratorUI frame;
-    InvoiceHeader header;
-    private ArrayList<InvoiceHeader> invoices = new ArrayList<>();
-    private HeaderTable headerTable;
-    private LineTable lineTable;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy");
-    private ArrayList<InvoiceLine> invoiceLines = new ArrayList<>();
-    HeaderDialog headerDialog;
-    LineDialog lineDialog;
-
-
-    public void loadFiles() throws Exception, ParseException {
-        invoices.clear();
-        invoiceLines.clear();
-        JOptionPane.showMessageDialog(this, "Please select Invoice Header file",
-                "Invoice Header", JOptionPane.WARNING_MESSAGE);
-        JFileChooser fc = new JFileChooser();
-        int option = fc.showOpenDialog(this);
-        File selectedFile;
-        if (option == JFileChooser.APPROVE_OPTION) {
-            selectedFile = fc.getSelectedFile();
-            FileReader fr = new FileReader(selectedFile);
-            BufferedReader br = new BufferedReader(fr);
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                String[] headerSegments = line.split(",");
-                String invNumStr = headerSegments[0];
-                String invDateStr = headerSegments[1];
-                String customerName = headerSegments[2];
-                int invNum = Integer.parseInt(invNumStr);
-                dateFormat = new SimpleDateFormat("dd-mm-yyyy");
-                Date invDate = dateFormat.parse(invDateStr);
-                InvoiceHeader header = new InvoiceHeader(invNum, invDate, customerName);
-                invoices.add(header);
+    private void turnOnAllActionListerners(View view) 
+    {
+        view.getLoadFile().addActionListener(fileMenuItemsListener);
+        view.getLoadFile().setActionCommand("Load Fisle Sequence");
+        view.getSaveFile().addActionListener(fileMenuItemsListener);
+        view.getSaveFile().setActionCommand("Save File");
+        view.getFileMenu().addMenuListener(fileMenuItemsListener);
+        view.getInvoiceTable().getSelectionModel().addListSelectionListener(invoiceTableListener);
+        view.getInvoicesLineTable().getSelectionModel().addListSelectionListener(invoicesLineTableListener);
+        view.addWindowListener(mainFrameWindowListener);
+        view.getAddItemDialog().addWindowListener(addItemDialogWindowListener);
+        view.getInvoiceDateTextField().addActionListener(invoiceDateTextFieldListener);
+        view.getInvoiceDateTextField().addFocusListener(invoiceDateTextFieldListener);
+        view.getCustomerNameTextField().addActionListener(customerNameTextFieldListener);
+        view.getCustomerNameTextField().addFocusListener(customerNameTextFieldListener);
+        view.getRootPane().addMouseMotionListener(mainFrameMouseMotionListener);        
+        view.getCreatNewInvoiceButton().addActionListener(this);
+        view.getCreatNewInvoiceButton().setActionCommand("Creat New Invoice");
+        view.getCreatNewInvoiceOK().addActionListener(this);
+        view.getCreatNewInvoiceOK().setActionCommand("Creat New Invoice OK");
+        view.getCreatNewInvoiceCancel().addActionListener(this);
+        view.getCreatNewInvoiceCancel().setActionCommand("Creat New Invoice Cancel");
+        view.getDeleteInvoiceButton().addActionListener(this);
+        view.getDeleteInvoiceButton().setActionCommand("Delete Invoice");
+        view.getAddItemButton().addActionListener(this);
+        view.getAddItemButton().setActionCommand("Add Item");
+        view.getNewItemPrice().addKeyListener(this);
+        view.getAddItemDialogCancel().addActionListener(this);
+        view.getAddItemDialogCancel().setActionCommand("Add Item Dialog Cancel");
+        view.getAddItemDialogOK().addActionListener(this);
+        view.getAddItemDialogOK().setActionCommand("Add Item Dialog OK");
+        view.getDeleteItemButton().addActionListener(this);
+        view.getDeleteItemButton().setActionCommand("Delete Item");
+        view.getCancelButton().addActionListener(this);
+        view.getCancelButton().setActionCommand("Cancel Any Changes");
+    }
+    /**
+    *
+    * Implement All Listeners
+    * 
+    */
+    @Override
+    public void actionPerformed(ActionEvent e)
+    {
+        switch(e.getActionCommand())
+        {
+            case "Creat New Invoice":
+            {
+                if(view.getFocusOwner()!=null)
+                LeftSide.showCreatNewInvoiceDialog(view);
+                break;
             }
-            br.close();
-            fr.close();
-        }
-
-
-
-        JOptionPane.showMessageDialog(this, "Please select Invoice Line file",
-                "Invoice Line", JOptionPane.WARNING_MESSAGE);
-        option = fc.showOpenDialog(this);
-        if (option == JFileChooser.APPROVE_OPTION) {
-            selectedFile = fc.getSelectedFile();
-            FileReader fr = new FileReader(selectedFile);
-            BufferedReader br = new BufferedReader(fr);
-            fr = new FileReader(selectedFile);
-            br = new BufferedReader(fr);
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                String[] lineSegments = line.split(",");
-                String invNumStr = lineSegments[0];
-                String item = lineSegments[1];
-                String priceStr = lineSegments[2];
-                String countStr = lineSegments[3];
-                int invNum = Integer.parseInt(invNumStr);
-                double price = Double.parseDouble(priceStr);
-                int count = Integer.parseInt(countStr);
-
-                header = findByNum(invNum);
-                InvoiceLine invLine = new InvoiceLine(item, price, count, header);
-                header.addLine(invLine);
+            case "Creat New Invoice OK":
+            {
+                //disable list selection listener for a moment
+                view.getInvoiceTable().getSelectionModel().removeListSelectionListener(invoiceTableListener);
+                //add new invoice
+                LeftSide.addNewInvoice(view,invoices);
+                //enable list selection listener
+                view.getInvoiceTable().getSelectionModel().addListSelectionListener(invoiceTableListener);
+                if(isThereIsNotSavedEdit)
+                {
+                    view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                }
+                else
+                {
+                    view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                }
+                break;
             }
-            br.close();
-            fr.close();
-
-            headerTable = new HeaderTable(invoices);
-            headerTable = new HeaderTable(invoices);
-            frame.getjTable1().setModel(headerTable);
-            frame.getjTable1().validate();
-
+            case "Creat New Invoice Cancel":
+            {
+                view.getNewCustomerName().setText("");
+                View.getCreatNewInvoiceDialog().setVisible(false);
+                break;
+            }
+            case "Delete Invoice":
+            {
+                if(view.getFocusOwner()!=null)
+                {
+                    //disable list selection listener for a moment
+                    view.getInvoiceTable().getSelectionModel().removeListSelectionListener(invoiceTableListener);
+                    //delete the selected invoice
+                    LeftSide.deleteSelectedInvoice(view,invoices);
+                    //enable list selection listener
+                    view.getInvoiceTable().getSelectionModel().addListSelectionListener(invoiceTableListener);
+                    if(isThereIsNotSavedEdit)
+                    {
+                        view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                    }
+                    else
+                    {
+                        view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                    }
+                }
+                break;
+            }
+            case "Add Item":
+            {
+                if(view.getFocusOwner()!=null)
+                RightSide.showCreatNewItemDialog(view);
+                break;
+            }
+            case "Add Item Dialog OK":
+            {
+                RightSide.AddNewItem(view,invoices);
+                LeftSide.calculateInvoiceTableTotal(invoices);
+                LeftSide.updateTableTotal(view, invoices);
+                RightSide.rightSideTextUpdater(view, invoices, view.getInvoiceTable().getSelectedRow());
+                LoadTables.loadInvoicesLineTable(view, invoices);
+                int sizeOfinvoicesLinesForTheSelectedInvoice=invoices.get(view.getInvoiceTable().getSelectedRow()).getInvoicerow().size();
+                view.getInvoicesLineTable().setRowSelectionInterval((sizeOfinvoicesLinesForTheSelectedInvoice-1), (sizeOfinvoicesLinesForTheSelectedInvoice-1));
+                View.getAddItemDialog().setVisible(false);
+                if(isThereIsNotSavedEdit)
+                {
+                    view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                }
+                else
+                {
+                    view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                }
+                break;
+            }
+            case "Add Item Dialog Cancel":
+            {
+                View.getAddItemDialog().setVisible(false);
+                view.getNewItemName().setText("");
+                view.getNewItemPrice().setText("");
+                view.getNewItemPriceSpinner().setValue((Object)1);
+                break;
+            }
+            case "Delete Item":
+            {
+                if(view.getFocusOwner()!=null)
+                {
+                    RightSide.DeleteItem(view,invoices);
+                    LeftSide.calculateInvoiceTableTotal(invoices);
+                    LeftSide.updateTableTotal(view, invoices);
+                    RightSide.rightSideTextUpdater(view, invoices, view.getInvoiceTable().getSelectedRow());
+                    System.out.println(selectedRow);
+                    LoadTables.loadInvoicesLineTable(view, invoices);
+                    int sizeOfinvoicesLinesForTheSelectedInvoice=invoices.get(view.getInvoiceTable().getSelectedRow()).getInvoicerow().size();
+                    if(sizeOfinvoicesLinesForTheSelectedInvoice>0)
+                    view.getInvoicesLineTable().setRowSelectionInterval((sizeOfinvoicesLinesForTheSelectedInvoice-1), (sizeOfinvoicesLinesForTheSelectedInvoice-1));
+                    if(isThereIsNotSavedEdit)
+                    {
+                        view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                    }
+                    else
+                    {
+                        view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                    }
+                }
+                break;
+            }
+            case "Cancel Any Changes":
+            {
+                //Reload CSV files into tables
+                if((FileOp.selectedInvoiceHeader!=null)&&(FileOp.selectedInvoiceLine!=null))
+                {
+                    view.getInvoiceTable().getSelectionModel().removeListSelectionListener(invoiceTableListener);
+                    invoices=fileOperations.readFile();
+                    LeftSide.calculateInvoiceTableTotal(invoices);
+                    loadTablesContents.loadInvoicesHeaderTable(view,invoices);
+                    maxNumberOfExistedInvoices=0;
+                    fileOperations.getMaxNumberOfExistedInvoices(maxNumberOfExistedInvoices,invoices);
+                    isThereIsNotSavedEdit=false;
+                    view.getInvoiceTable().getSelectionModel().addListSelectionListener(invoiceTableListener);
+                    if(invoices.size()>=1)
+                    view.getInvoiceTable().setRowSelectionInterval(0, 0);
+                }
+                if(isThereIsNotSavedEdit)
+                {
+                    view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                }
+                else
+                {
+                    view.getCancelButton().setEnabled(isThereIsNotSavedEdit);
+                }
+                break;
+            }
         }
+        
     }
-
-
-
-
-        public void saveDataInLines() throws IOException {
-        JOptionPane.showMessageDialog(this,"Please Save Header File","Invoice Line ", JOptionPane.WARNING_MESSAGE);
-        JFileChooser fileChooser = new JFileChooser();
-        int option = fileChooser.showOpenDialog(this);
-        if (option == JFileChooser.APPROVE_OPTION){
-            File newFile = fileChooser.getSelectedFile();
-          PrintWriter printWriter = new PrintWriter(newFile);
-          for(InvoiceLine invoiceLine : invoiceLines){
-              printWriter.printf("%d,%s,%s",invoiceLine.getNumOfItems(),invoiceLine.getProduct(),invoiceLine.getPrice(),invoiceLine.getCount());
-              printWriter.println();
-          }
-          printWriter.close();
-          JOptionPane.showMessageDialog(this,"Successfully saved", "Information",JOptionPane.INFORMATION_MESSAGE);
+    //validate new item price
+    @Override
+    public void keyTyped(KeyEvent evnt)
+    {
+        char price=evnt.getKeyChar();
+        if(Character.isLetter(price)&&!evnt.isAltDown()&&evnt.isShiftDown()&&evnt.isControlDown())
+        {
+            evnt.consume();
         }
-    }
-
-    public void saveDataInHeader() throws Exception {
-        JOptionPane.showMessageDialog(this,"Please Save Header File","Invoice Header ", JOptionPane.WARNING_MESSAGE);
-        JFileChooser fileChooser = new JFileChooser();
-        int option = fileChooser.showOpenDialog(this);
-        if (option ==JFileChooser.APPROVE_OPTION);
-        File newFile = fileChooser.getSelectedFile();
-        PrintWriter printWriter = new PrintWriter(newFile);
-        for(InvoiceHeader header : invoices){
-            printWriter.printf("%d,%s,%s",header.getNum(),header.getDate().toString(),header.getCustomerName());
-            printWriter.println();
-        }
-        printWriter.close();
-        JOptionPane.showMessageDialog(this,"File Saved","Information",JOptionPane.INFORMATION_MESSAGE);
-    }
-
-
-    public void createInvoice(){
-        headerDialog = new HeaderDialog(frame);
-        headerDialog.setVisible(true);
-    }
-
-
-    public void createInvoiceOk() {
-
-        String customerNameInput = headerDialog.getCustomerNameField().getText();
-        String invoiceDateInputStr = headerDialog.getDateField().getText();
-        Date invoiceDateInput = new Date();
+        if((price=='f')||(price=='d'))
+                evnt.consume();
         try {
-            invoiceDateInput = dateFormat.parse(invoiceDateInputStr);
-        } catch (ParseException exception) { }
-        headerDialog.setVisible(false);
-        int num = getMaxNum() + 1;
-        InvoiceHeader newInvoiceHeader = new InvoiceHeader(num,invoiceDateInput,customerNameInput);
-
-        invoices.add(newInvoiceHeader);
-        headerTable = new HeaderTable(invoices);
-        frame.getjTable1().setModel(headerTable);
-        headerTable.fireTableDataChanged();
-    }
-
-    public void createInvoiceCancel(){
-        headerDialog.setVisible(false);
-    }
-
-
-    public void addNewItem(){
-        lineDialog = new LineDialog(frame);
-        lineDialog.setVisible(true);
-    }
-
-
-
-    public void addNewItemOk(){
-        String itemNameInput = lineDialog.getItemNameField().getText();
-        String itemCountStr = lineDialog.getItemCountField().getText();
-        String itemPriceStr = lineDialog.getItemPriceField().getText();
-        int itemCount = Integer.parseInt(itemCountStr);
-        double itemPrice = Double.parseDouble(itemPriceStr);
-
-        lineDialog.setVisible(false);
-
-        int row = frame.getjTable1().getSelectedRow();
-        if (row > 0) {
-            InvoiceHeader header = invoices.get(row);
-            InvoiceLine line = new InvoiceLine(itemNameInput,itemPrice,itemCount,header);
-            header.addLine(line);
-            lineTable.fireTableDataChanged();
-            headerTable.fireTableDataChanged();
-        }
-
-    }
-
-    public void cancelAddingNewItem (){
-        lineDialog.setVisible(false);}
-
-    public void deleteInvoice(){
-        int IndexOfRow = frame.getjTable1().getSelectedRow();
-        if (IndexOfRow >= 0) {
-            headerTable.removeRow(IndexOfRow);
-            headerTable.fireTableDataChanged();
-            lineTable.fireTableDataChanged();
+            Float.parseFloat(view.getNewItemPrice().getText()+price);
+        } catch (Exception e) {
+            evnt.consume();
         }
     }
+    
+    @Override
+    public void keyPressed(KeyEvent e){}
 
-        public void deleteItem(){
-        int selectedRow = frame.getjTable2().getSelectedRow();
-        if (selectedRow >= 0) {
-            lineTable.removeRow(selectedRow);
-            lineTable.fireTableDataChanged();
-            headerTable.fireTableDataChanged();
-        }
-    }
-
-
-    public InvoiceHeader findByNum(int num){
-        for (InvoiceHeader header : invoices ){
-            if(header.getNum()== num){
-                return header;
-            }
-        }
-        return null;
-    }
-
-    public void jTable1RowSelected() {
-
-        int rowIndex = frame.getjTable1().getSelectedRow();
-        if (rowIndex >= 0) {
-            InvoiceHeader row = headerTable.getInvoicesFromHeader().get(rowIndex);
-            frame.getInvNumLbl().setText("" + row.getNum());
-            frame.getInvDateTF().setText(row.getDate().toString());
-            frame.getCusNameTF().setText(row.getCustomerName());
-            frame.getInvTotalLb().setText("" + row.getInvHeaderTotal());
-            ArrayList<InvoiceLine> invoiceLines = row.getLines();
-            lineTable = new LineTable(invoiceLines);
-            frame.getjTable2().setModel(lineTable);
-            lineTable.fireTableDataChanged();
-
-        }
-    }
-
-        public int getMaxNum (){
-        int num = 0;
-        for (InvoiceHeader invoiceHeader : invoices){
-            if (invoiceHeader.getNum() > num){
-                num = invoiceHeader.getNum();
-            }
-        }
-        return num;
-    }
-
+    @Override
+    public void keyReleased(KeyEvent e){}
 }
-
-
-
