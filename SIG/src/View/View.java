@@ -29,8 +29,8 @@ import javax.swing.JTextField;
 
 public class View extends javax.swing.JFrame
 {
-    javax.swing.JFileChooser openFile;
-    javax.swing.JOptionPane jOptionPaneMessage;
+    javax.swing.JFileChooser OpenMyF;
+    javax.swing.JOptionPane jOptMessage;
     private SimpleDateFormat date=new SimpleDateFormat("dd-MM-yyyy");
     public View() 
     {
@@ -59,8 +59,8 @@ public class View extends javax.swing.JFrame
         initComponents();
         disableAllButtons();
         /*After Review*/
-        openFile=new JFileChooser();
-        jOptionPaneMessage=new JOptionPane();
+        OpenMyF =new JFileChooser();
+        jOptMessage =new JOptionPane();
         CustomerNameTextField.setName("CustomerName");
         InvoiceDateTextField.setName("InvoiceDate");
         InvoicesLineTable.setName("InvoicesLineTable");
@@ -527,21 +527,6 @@ public class View extends javax.swing.JFrame
     private javax.swing.JMenuItem SaveFile;
     // End of variables declaration//GEN-END:variables
    
-    public JMenuItem getLoadFile() {
-        return LoadFile;
-    }
-
-    public JMenu getFileMenu() {
-        return FileMenu;
-    }
-
-    public JTable getInvoiceTable() {
-        return InvoiceTable;
-    }
-    public JTable getInvoicesLineTable() {
-        return InvoicesLineTable;
-    }
-
     public JButton getAddItemButton() {
         return AddItemButton;
     }
@@ -560,10 +545,22 @@ public class View extends javax.swing.JFrame
     public JTextField getInvoiceDateTextField() {
         return InvoiceDateTextField;
     }
-    
+
     public JLabel getInvoiceTotalLabel() {
         return InvoiceTotalLabel;
     }
+    public JMenu getFileMenu() {
+        return FileMenu;
+    }
+
+    public JTable getInvoiceTable() {
+        return InvoiceTable;
+    }
+    public JTable getInvoicesLineTable() {
+        return InvoicesLineTable;
+    }
+
+
     
     public JMenuItem getSaveFile() {
         return SaveFile;
@@ -593,36 +590,7 @@ public class View extends javax.swing.JFrame
     }
     
     public JFileChooser getOpenFileJFileChooser() {
-        return openFile;
-    }
-    
-    public JRootPane getRootPane() {
-        return rootPane;
-    }
-    
-    public JTextField getNewInvoiceDateField() {
-        return NewInvoiceDateField;
-    }
-
-    public static JDialog getCreatNewInvoiceDialog() {
-        return CreatNewInvoiceDialog;
-    }
-    
-
-    public static JDialog getAddItemDialog() {
-        return AddItemDialog;
-    }
-
-    public JButton getAddItemDialogCancel() {
-        return AddItemDialogCancel;
-    }
-
-    public JButton getCreatNewInvoiceOK() {
-        return CreatNewInvoiceOK;
-    }
-
-    public JTextField getNewCustomerName() {
-        return NewCustomerName;
+        return OpenMyF;
     }
 
     public JButton getCreatNewInvoiceCancel() {
@@ -644,6 +612,38 @@ public class View extends javax.swing.JFrame
     public JTextField getNewItemPrice() {
         return NewItemPrice;
     }
+    public JRootPane getRootPane() {
+        return rootPane;
+    }
+    
+    public JTextField getNewInvoiceDateField() {
+        return NewInvoiceDateField;
+    }
+
+    public static JDialog getCreatNewInvoiceDialog() {
+        return CreatNewInvoiceDialog;
+    }
+    public JButton getAddItemDialogCancel() {
+        return AddItemDialogCancel;
+    }
+
+    public JButton getCreatNewInvoiceOK() {
+        return CreatNewInvoiceOK;
+    }
+
+    public JTextField getNewCustomerName() {
+        return NewCustomerName;
+    }
+
+
+    public static JDialog getAddItemDialog() {
+        return AddItemDialog;
+    }
+    public JMenuItem getLoadFile() {
+        return LoadFile;
+    }
+
+
 
     public JScrollPane getjScrollPane2() {
         return InvoicesLineTableScrollPane;
@@ -669,21 +669,27 @@ public class View extends javax.swing.JFrame
             messageTypeInteger=1;
             break;
         }
-        jOptionPaneMessage.showMessageDialog(component, message, title, messageTypeInteger);
+        jOptMessage.showMessageDialog(component, message, title, messageTypeInteger);
     }
     
-    public int showYesNoCancelDialog(Component component,String message,String title) 
-    {
-        Object[] yesNoCancel = {"Yes","No","Cancel"};
-        return JOptionPane.showOptionDialog(component, message, title,JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,yesNoCancel, yesNoCancel[0]);
-    }
-    
+
     public int showSaveDontSaveCancelDialog(Component component,String message,String title) 
     {
         Object[] saveDontSaveCancel = {"Save","Discard","Cancel"};
         return JOptionPane.showOptionDialog(component, message, title,JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,saveDontSaveCancel, saveDontSaveCancel[0]);
     }
-    
+    public int showYesNoCancelDialog(Component component,String message,String title)
+    {
+        Object[] yesNoCancel = {"Yes","No","Cancel"};
+        return JOptionPane.showOptionDialog(component, message, title,JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,yesNoCancel, yesNoCancel[0]);
+    }
+
+
+    public void setLocations()
+    {
+        CreatNewInvoiceDialog.setLocation(InvoiceTable.getLocationOnScreen().x+50,InvoiceTable.getLocationOnScreen().y+50);
+        AddItemDialog.setLocation(InvoicesLineTable.getLocationOnScreen().x+100,InvoicesLineTable.getLocationOnScreen().y);
+    }
     private void disableAllButtons()
     {
         CreatNewInvoiceButton.setEnabled(false);
@@ -693,9 +699,4 @@ public class View extends javax.swing.JFrame
         CancelButton.setEnabled(false);
     }
 
-    public void setLocations()
-    {
-        CreatNewInvoiceDialog.setLocation(InvoiceTable.getLocationOnScreen().x+50,InvoiceTable.getLocationOnScreen().y+50);
-        AddItemDialog.setLocation(InvoicesLineTable.getLocationOnScreen().x+100,InvoicesLineTable.getLocationOnScreen().y);
-    }
 }
