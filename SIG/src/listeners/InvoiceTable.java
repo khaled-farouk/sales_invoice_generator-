@@ -28,16 +28,16 @@ public class InvoiceTable implements ListSelectionListener
     @Override
     public void valueChanged(ListSelectionEvent e) 
     {
-        if(Controller.invoices.size()>=1)
+        if(Cntrol.invoices.size()>=1)
         {
             //Dected the latest change
             if(!e.getValueIsAdjusting())
             {
                 view.getDeleteItemButton().setEnabled(false);
-                Controller.selectedRow=view.getInvoiceTable().getSelectedRow();
+                Cntrol.selectedR =view.getInvoiceTable().getSelectedRow();
                 view.getInvoicesLineTable().getSelectionModel().removeListSelectionListener(invoicesLineTableListener);
-                LoadTables.loadInvoicesLineTable(view, Controller.invoices);
-                RightSide.rightSideTextUpdater(view, Controller.invoices, Controller.selectedRow);
+                LoadTables.loadInvoicesLineTable(view, Cntrol.invoices);
+                RightPanell.rightSideTextUpdat(view, Cntrol.invoices, Cntrol.selectedR);
                 view.getInvoicesLineTable().getSelectionModel().addListSelectionListener(invoicesLineTableListener);
             }
         }

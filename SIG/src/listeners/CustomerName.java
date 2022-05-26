@@ -27,19 +27,19 @@ public class CustomerName implements FocusListener, ActionListener
     @Override
     public void focusLost(FocusEvent e)
     {
-        if(!((Controller.invoices.get(Controller.selectedRow).getInoviceCustomerName()).equals((view.getCustomerNameTextField().getText()))))
+        if(!((Cntrol.invoices.get(Cntrol.selectedR).getInoviceCustomerName()).equals((view.getCustomerNameTextField().getText()))))
         {
-            RightSide.changeCustomerNameTextField(view,Controller.invoices);
-            view.getInvoiceTable().setRowSelectionInterval(Controller.selectedRow, Controller.selectedRow);
+            RightPanell.UpdateNamefield(view, Cntrol.invoices);
+            view.getInvoiceTable().setRowSelectionInterval(Cntrol.selectedR, Cntrol.selectedR);
         }
     }
     
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        if(!((Controller.invoices.get(Controller.selectedRow).getInoviceCustomerName()).equals((view.getCustomerNameTextField().getText()))))
+        if(!((Cntrol.invoices.get(Cntrol.selectedR).getInoviceCustomerName()).equals((view.getCustomerNameTextField().getText()))))
         {
-            RightSide.changeCustomerNameTextField(view,Controller.invoices);
+            RightPanell.UpdateNamefield(view, Cntrol.invoices);
         }
     }
     

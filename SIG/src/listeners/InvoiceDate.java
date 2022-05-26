@@ -27,21 +27,21 @@ public class InvoiceDate implements FocusListener, ActionListener
     @Override
     public void focusLost(FocusEvent e)
     {
-        if((!(Controller.invoices.isEmpty()))&&(Controller.selectedRow>=0))
+        if((!(Cntrol.invoices.isEmpty()))&&(Cntrol.selectedR >=0))
         {
-            if(!((view.getDate().format(Controller.invoices.get(Controller.selectedRow).getInoviceDate())).equals((view.getInvoiceDateTextField().getText()))))
+            if(!((view.getDate().format(Cntrol.invoices.get(Cntrol.selectedR).getInoviceDate())).equals((view.getInvoiceDateTextField().getText()))))
             {
-                RightSide.dateFieldValidator(view,Controller.invoices);
-                view.getInvoiceTable().setRowSelectionInterval(Controller.selectedRow, Controller.selectedRow);
+                RightPanell.dateValidae(view, Cntrol.invoices);
+                view.getInvoiceTable().setRowSelectionInterval(Cntrol.selectedR, Cntrol.selectedR);
             }
         }
     }
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        if(!((view.getDate().format(Controller.invoices.get(Controller.selectedRow).getInoviceDate())).equals((view.getInvoiceDateTextField().getText()))))
+        if(!((view.getDate().format(Cntrol.invoices.get(Cntrol.selectedR).getInoviceDate())).equals((view.getInvoiceDateTextField().getText()))))
         {
-            RightSide.dateFieldValidator(view,Controller.invoices);
+            RightPanell.dateValidae(view, Cntrol.invoices);
         }
     }
     @Override

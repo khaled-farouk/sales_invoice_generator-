@@ -28,7 +28,7 @@ public class MainFrameMotion implements MouseMotionListener
     @Override
     public void mouseMoved(MouseEvent e)
     {
-        if((FileOp.selectedInvoiceHeader!=null)&&(FileOp.selectedInvoiceLine!=null))
+        if((FileOp.selectINvOHeader !=null)&&(FileOp.selectInVoLine !=null))
         {
             view.getCreatNewInvoiceButton().setEnabled(true);
         }
@@ -38,7 +38,7 @@ public class MainFrameMotion implements MouseMotionListener
             view.getDeleteInvoiceButton().setEnabled(false);
             view.getInvoiceTotalLabel().setText("");
         }
-       if((Controller.invoices.isEmpty())||(view.getInvoiceTable().getSelectedRow()<0))
+       if((Cntrol.invoices.isEmpty())||(view.getInvoiceTable().getSelectedRow()<0))
         {
             view.getDeleteInvoiceButton().setEnabled(false);
         }
@@ -46,13 +46,13 @@ public class MainFrameMotion implements MouseMotionListener
         {
             view.getDeleteInvoiceButton().setEnabled(true);
         }
-       if(Controller.isThereIsNotSavedEdit)
+       if(Cntrol.isThereIsnotSvdEd)
         {
-            view.getCancelButton().setEnabled(Controller.isThereIsNotSavedEdit);
+            view.getCancelButton().setEnabled(Cntrol.isThereIsnotSvdEd);
         }
         else
         {
-            view.getCancelButton().setEnabled(Controller.isThereIsNotSavedEdit);
+            view.getCancelButton().setEnabled(Cntrol.isThereIsnotSvdEd);
         }
     }
     

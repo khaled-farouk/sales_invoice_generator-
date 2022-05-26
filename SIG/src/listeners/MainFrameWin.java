@@ -30,7 +30,7 @@ public class MainFrameWin implements WindowListener
     public void windowClosing(WindowEvent e)
     {
         int option;
-        if(Controller.isThereIsNotSavedEdit)
+        if(Cntrol.isThereIsnotSvdEd)
         {
             option= view.showSaveDontSaveCancelDialog(view, "Do You Want To Save Changes?", "Exit");
             if(option == 1)
@@ -50,26 +50,26 @@ public class MainFrameWin implements WindowListener
     void saveFile()
     {
         //Write the invoices arraylist
-        fileOperations.writeFile(Controller.invoices);
+        fileOperations.writeFile(Cntrol.invoices);
         //Reload CSV files into tables
-        if((FileOp.selectedInvoiceHeader!=null)&&(FileOp.selectedInvoiceLine!=null))
+        if((FileOp.selectINvOHeader !=null)&&(FileOp.selectInVoLine !=null))
         {
             view.getInvoiceTable().getSelectionModel().removeListSelectionListener(invoiceTableListener);
-            Controller.invoices=fileOperations.readFile();
-            LeftSide.calculateInvoiceTableTotal(Controller.invoices);
-            LoadTables.loadInvoicesHeaderTable(view,Controller.invoices);
-            Controller.isThereIsNotSavedEdit=false;
+            Cntrol.invoices=fileOperations.readFile();
+            LeftPanell.calculateeTotal(Cntrol.invoices);
+            LoadTables.loadInvoicesHeaderTable(view, Cntrol.invoices);
+            Cntrol.isThereIsnotSvdEd =false;
             view.getInvoiceTable().getSelectionModel().addListSelectionListener(invoiceTableListener);
-            if(Controller.invoices.size()>=1)
+            if(Cntrol.invoices.size()>=1)
             view.getInvoiceTable().setRowSelectionInterval(0, 0);
         }
-        if(Controller.isThereIsNotSavedEdit)
+        if(Cntrol.isThereIsnotSvdEd)
         {
-            view.getCancelButton().setEnabled(Controller.isThereIsNotSavedEdit);
+            view.getCancelButton().setEnabled(Cntrol.isThereIsnotSvdEd);
         }
         else
         {
-            view.getCancelButton().setEnabled(Controller.isThereIsNotSavedEdit);
+            view.getCancelButton().setEnabled(Cntrol.isThereIsnotSvdEd);
         }
     }
     @Override
@@ -88,7 +88,7 @@ public class MainFrameWin implements WindowListener
     public void windowActivated(WindowEvent e)
     {
         //Disable and enable Creat and Delete invoice buttons
-        if((FileOp.selectedInvoiceHeader!=null)&&(FileOp.selectedInvoiceLine!=null))
+        if((FileOp.selectINvOHeader !=null)&&(FileOp.selectInVoLine !=null))
         {
             view.getCreatNewInvoiceButton().setEnabled(true);
         }
@@ -104,7 +104,7 @@ public class MainFrameWin implements WindowListener
     public void windowDeactivated(WindowEvent e)
     {
         //Disable and enable Creat and Delet invoice buttons
-        if((FileOp.selectedInvoiceHeader!=null)&&(FileOp.selectedInvoiceLine!=null))
+        if((FileOp.selectINvOHeader !=null)&&(FileOp.selectInVoLine !=null))
         {
             view.getCreatNewInvoiceButton().setEnabled(true);
         }

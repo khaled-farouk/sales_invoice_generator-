@@ -18,15 +18,15 @@ import javax.swing.event.MenuListener;
  */
 public class FileMenitem implements ActionListener ,MenuListener
 {
-    private FileOp fileOperations;
-    private InvoiceTable invoiceTableListener;
+    private FileOp fileoperation;
+    private InvoiceTable invoiceTableAc;
     private View view=null;
     
     public FileMenitem(View view, FileOp fileOperations, InvoiceTable invoiceTableListener)
     {
         this.view=view;
-        this.fileOperations=fileOperations;
-        this.invoiceTableListener=invoiceTableListener;
+        this.fileoperation =fileOperations;
+        this.invoiceTableAc =invoiceTableListener;
     }
     
     @Override
@@ -37,45 +37,45 @@ public class FileMenitem implements ActionListener ,MenuListener
             case "Load Fisle Sequence":
             {
                 /*Clear Both Table*/
-                Controller.isThereIsNotSavedEdit=false;
-                TableContent.cleanInvoicesHeaderTable(view);
-                TableContent.cleanInvoicesLineTable(view);
+                Cntrol.isThereIsnotSvdEd =false;
+                TableData.DeleteInvoicesHeader(view);
+                TableData.DeleteLineTable(view);
                 //clean total
                 view.getInvoiceTotalLabel().setText("");
-                fileOperations.getFilesPaths();
-                if((FileOp.selectedInvoiceHeader!=null)&&(FileOp.selectedInvoiceLine!=null))
+                fileoperation.FilePaths();
+                if((FileOp.selectINvOHeader !=null)&&(FileOp.selectInVoLine !=null))
                 {
-                    Controller.invoices=fileOperations.readFile();
-                    fileOperations.testMain(Controller.invoices);
-                    LeftSide.calculateInvoiceTableTotal(Controller.invoices);
-                    LoadTables.loadInvoicesHeaderTable(view,Controller.invoices);
-                    fileOperations.getMaxNumberOfExistedInvoices(Controller.maxNumberOfExistedInvoices,Controller.invoices);
+                    Cntrol.invoices= fileoperation.readFile();
+                    fileoperation.testMain(Cntrol.invoices);
+                    LeftPanell.calculateeTotal(Cntrol.invoices);
+                    LoadTables.loadInvoicesHeaderTable(view, Cntrol.invoices);
+                    fileoperation.getMaxNumberOfExistedInvoices(Cntrol.maxNumInvoices, Cntrol.invoices);
                 }
                 break;
             }
             case "Save File":
             {
                 //Write the invoices arraylist
-                fileOperations.writeFile(Controller.invoices);
+                fileoperation.writeFile(Cntrol.invoices);
                 //Reload CSV files into tables
-                if((FileOp.selectedInvoiceHeader!=null)&&(FileOp.selectedInvoiceLine!=null))
+                if((FileOp.selectINvOHeader !=null)&&(FileOp.selectInVoLine !=null))
                 {
-                    view.getInvoiceTable().getSelectionModel().removeListSelectionListener(invoiceTableListener);
-                    Controller.invoices=fileOperations.readFile();
-                    LeftSide.calculateInvoiceTableTotal(Controller.invoices);
-                    LoadTables.loadInvoicesHeaderTable(view,Controller.invoices);
-                    Controller.isThereIsNotSavedEdit=false;
-                    view.getInvoiceTable().getSelectionModel().addListSelectionListener(invoiceTableListener);
-                    if(Controller.invoices.size()>=1)
+                    view.getInvoiceTable().getSelectionModel().removeListSelectionListener(invoiceTableAc);
+                    Cntrol.invoices= fileoperation.readFile();
+                    LeftPanell.calculateeTotal(Cntrol.invoices);
+                    LoadTables.loadInvoicesHeaderTable(view, Cntrol.invoices);
+                    Cntrol.isThereIsnotSvdEd =false;
+                    view.getInvoiceTable().getSelectionModel().addListSelectionListener(invoiceTableAc);
+                    if(Cntrol.invoices.size()>=1)
                     view.getInvoiceTable().setRowSelectionInterval(0, 0);
                 }
-                if(Controller.isThereIsNotSavedEdit)
+                if(Cntrol.isThereIsnotSvdEd)
                 {
-                    view.getCancelButton().setEnabled(Controller.isThereIsNotSavedEdit);
+                    view.getCancelButton().setEnabled(Cntrol.isThereIsnotSvdEd);
                 }
                 else
                 {
-                    view.getCancelButton().setEnabled(Controller.isThereIsNotSavedEdit);
+                    view.getCancelButton().setEnabled(Cntrol.isThereIsnotSvdEd);
                 }
                 break;
             }
@@ -85,7 +85,7 @@ public class FileMenitem implements ActionListener ,MenuListener
     @Override //Enable or disable Save File Button in File Menu
     public void menuSelected(MenuEvent e) 
     {
-        if((Controller.isThereIsNotSavedEdit))
+        if((Cntrol.isThereIsnotSvdEd))
         {
             view.getSaveFile().setEnabled(true);
         }
